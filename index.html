@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>EVI English Trainer - Тематичний режим</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 850px; margin: 30px auto; padding: 20px; color: #333; background-color: #f9f9f9; }
+        h1 { text-align: center; color: #0056b3; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 25px; }
+        
+        /* Панель навігації та фільтрів */
+        .filter-section { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; margin-bottom: 25px; }
+        .nav-row { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        
+        .part-btn { flex: 1; padding: 12px; font-size: 1.1em; cursor: pointer; background: #f0f0f0; border: 1px solid #ccc; border-radius: 8px; transition: all 0.2s; font-weight: bold; color: #555; }
+        .part-btn.active { background: #007bff; color: white; border-color: #007bff; }
+        
+        .topics-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .topic-btn { padding: 8px 14px; font-size: 0.9em; cursor: pointer; background: white; border: 1px solid #007bff; color: #007bff; border-radius: 20px; transition: all 0.2s; }
+        .topic-btn:hover { background: #f0f8ff; }
+        .topic-btn.active { background: #007bff; color: white; font-weight: bold; }
+        
+        /* Статистика та прогрес-бар */
+        .stats { background-color: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; display: flex; justify-content: space-around; }
+        .stat-item { text-align: center; }
+        .stat-label { font-size: 0.85em; color: #777; }
+        .stat-value { font-size: 1.4em; font-weight: bold; color: #333; }
+        
+        #progress-line-bg { background-color: #e0e0e0; height: 8px; border-radius: 4px; width: 100%; margin-bottom: 25px; overflow: hidden; }
+        #progress-line-fill { background-color: #28a745; height: 100%; width: 0%; transition: width 0.3s ease; }
+        
+        /* Контейнер тесту */
+        .quiz-container { background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; min-height: 200px; }
+        .question-text { font-size: 1.25em; margin-bottom: 25px; line-height: 1.6; color: #222; }
+        .options-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 25px; }
+        
+        .option-btn { padding: 14px 20px; font-size: 1.05em; cursor: pointer; background-color: #fff; border: 2px solid #ddd; border-radius: 8px; transition: all 0.15s; color: #444; text-align: left; }
+        .option-btn:hover:not(:disabled) { border-color: #007bff; background-color: #f0f8ff; }
+        .option-btn:disabled { cursor: not-allowed; }
+        
+        /* Підсвічування відповідей */
+        .option-btn.correct { background-color: #28a745 !important; border-color: #28a745 !important; color: white !important; font-weight: bold; }
+        .option-btn.incorrect { background-color: #dc3545 !important; border-color: #dc3545 !important; color: white !important; font-weight: bold; }
+        
+        #hint-area { background-color: #e2f3f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #007bff; display: none; }
+        #hint-text { color: #0056b3; }
+        
+        #next-btn { display: none; width: 100%; padding: 14px; font-size: 1.15em; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 8px; font-weight: bold; }
+        #next-btn:hover { background-color: #218838; }
+        
+        .no-questions, .finish-screen { text-align: center; color: #333; padding: 40px 0; }
+        .finish-screen h2 { color: #28a745; font-size: 2em; margin-bottom: 10px; }
+        .score-badge { display: inline-block; background-color: #f0f8ff; border: 2px dashed #007bff; border-radius: 8px; padding: 15px 30px; margin: 20px 0; }
+        .score-number { font-size: 2em; font-weight: bold; color: #007bff; display: block; }
+        .evaluation-text { font-size: 1.1em; color: #555; max-width: 600px; margin: 0 auto 25px auto; line-height: 1.5; }
+        .restart-btn { padding: 12px 25px; font-size: 1.1em; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .restart-btn:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+<h1>Тренажер ЄВІ з англійської</h1>
+<div class="subtitle">Інтенсивна підготовка за 2 тижні</div>
+
+<div class="filter-section">
+    <div class="nav-row">
+        <button class="part-btn active" id="part1-btn" onclick="switchPart(1)">Перша частина: Лексика (Task 3)</button>
+        <button class="part-btn" id="part2-btn" onclick="switchPart(2)">Друга частина: Граматика (Task 4)</button>
+    </div>
+    
+    <div class="topics-row" id="topics-container">
+        <button class="topic-btn active" onclick="switchTopic('All')">Всі теми частини</button>
+        <button class="topic-btn" onclick="switchTopic('Collocations')">Collocations</button>
+        <button class="topic-btn" onclick="switchTopic('Phrasal Verbs')">Phrasal Verbs</button>
+        <button class="topic-btn" onclick="switchTopic('Idioms & Fixed Expressions')">Idioms & Fixed Expressions</button>
+        <button class="topic-btn" onclick="switchTopic('Words easily confused / Synonyms')">Words / Synonyms</button>
+        <button class="topic-btn" onclick="switchTopic('Dependent Prepositions')">Dependent Prepositions</button>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat-item"><div class="stat-label">Правильно</div><div class="stat-value" id="score">0</div></div>
+    <div class="stat-item"><div class="stat-label">Зараз пройдено</div><div class="stat-value" id="total">0</div></div>
+    <div class="stat-item"><div class="stat-label">Результативність</div><div class="stat-value"><span id="percent">0</span>%</div></div>
+</div>
+<div id="progress-line-bg"><div id="progress-line-fill"></div></div>
+
+<div class="quiz-container" id="quiz-container-block">
+    <div id="quiz-area"></div>
+    <div id="hint-area"><strong>Аналіз:</strong> <span id="hint-text"></span></div>
+    <button id="next-btn" onclick="loadQuestion()">Наступне питання →</button>
+</div>
+
+<script src="questions.js"></script>
+
+<script>
+    let correctCount = 0;
+    let totalCount = 0;
+    
+    let selectedPart = 1;       // Поточна обрана частина
+    let selectedTopic = 'All';   // Поточна обрана тема
+    let currentItem = null;      // Поточне активне перемішане питання
+    
+    // Масив для збереження питань, які ще НЕ були пройдені в поточній сесії фільтрації
+    let unvisitedQuestions = [];
+
+    // Функція, яка запускається при зміні теми або частини для створення нового списку доступних питань
+    function rebuildQuestionPool() {
+        // Фільтруємо головну базу db відповідно до обраних кнопками фільтрів
+        let filtered = db.filter(item => item.part === selectedPart);
+        if (selectedPart === 1 && selectedTopic !== 'All') {
+            filtered = filtered.filter(item => item.topic === selectedTopic);
+        }
+        // Записуємо відфільтровані питання у пул невідвіданих
+        unvisitedQuestions = [...filtered];
+    }
+
+    function switchPart(partNum) {
+        selectedPart = partNum;
+        selectedTopic = 'All'; 
+        
+        document.getElementById('part1-btn').classList.toggle('active', partNum === 1);
+        document.getElementById('part2-btn').classList.toggle('active', partNum === 2);
+        
+        const topicsRow = document.getElementById('topics-container');
+        if (partNum === 2) {
+            topicsRow.style.style.display = 'none';
+            topicsRow.style.display = 'none';
+        } else {
+            topicsRow.style.display = 'flex';
+            resetTopicButtons();
+        }
+        
+        rebuildQuestionPool();
+        loadQuestion();
+    }
+
+    function switchTopic(topicName) {
+        selectedTopic = topicName;
+        
+        const buttons = document.querySelectorAll('.topic-btn');
+        buttons.forEach(btn => {
+            if(btn.innerText === topicName || (topicName === 'All' && btn.innerText.includes('Всі'))) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        rebuildQuestionPool();
+        loadQuestion();
+    }
+
+    function resetTopicButtons() {
+        const buttons = document.querySelectorAll('.topic-btn');
+        buttons.forEach((btn, idx) => {
+            if(idx === 0) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+
+    function loadQuestion() {
+        const quizArea = document.getElementById('quiz-area');
+        const nextBtn = document.getElementById('next-btn');
+        const hintArea = document.getElementById('hint-area');
+        const fillLine = document.getElementById('progress-line-fill');
+        
+        quizArea.innerHTML = '';
+        nextBtn.style.display = 'none';
+        hintArea.style.display = 'none';
+
+        // Якщо пул ще не створено (перший запуск)
+        if (unvisitedQuestions.length === 0 && totalCount === 0) {
+            rebuildQuestionPool();
+        }
+
+        // ПЕРЕВІРКА: Якщо в базі взагалі немає таких тем
+        let originalFilterCount = db.filter(item => item.part === selectedPart && (selectedPart === 2 || selectedTopic === 'All' || item.topic === selectedTopic)).length;
+        if (originalFilterCount === 0) {
+            quizArea.innerHTML = `<div class="no-questions">У базі поки немає питань з теми "${selectedTopic}" для цієї частини. Додай їх у файл questions.js!</div>`;
+            fillLine.style.width = '0%';
+            return;
+        }
+
+        // ПЕРЕВІРКА: Якщо питання закінчилися (Пул порожній, але питання за цим фільтром взагалі існують)
+        if (unvisitedQuestions.length === 0) {
+            showFinalScreen(originalFilterCount);
+            return;
+        }
+
+        // Рахуємо прогрес-бар для поточної теми
+        let passedInThisPool = originalFilterCount - unvisitedQuestions.length;
+        let progressPercent = Math.round((passedInThisPool / originalFilterCount) * 100);
+        fillLine.style.width = `${progressPercent}%`;
+
+        // Вибираємо рандомне питання з доступних в пулі
+        const randomIndex = Math.floor(Math.random() * unvisitedQuestions.length);
+        const rawQuestion = unvisitedQuestions[randomIndex];
+
+        // Видаляємо це питання з пулу, щоб воно більше ніколи не повторилося в цій сесії
+        unvisitedQuestions.splice(randomIndex, 1);
+
+        // --- ЛОГІКА РАНДОМІЗАЦІЇ ВАРІАНТІВ ВІДПОВІДЕЙ ---
+        const correctText = rawQuestion.options[rawQuestion.a]; // Текст правильної відповіді
+        let shuffledOptions = [...rawQuestion.options];
+        shuffledOptions.sort(() => Math.random() - 0.5); // Перемішуємо варіанти
+        const newCorrectIndex = shuffledOptions.indexOf(correctText); // Шукаємо новий індекс правильної відповіді
+
+        // Зберігаємо поточний стан
+        currentItem = {
+            topic: rawQuestion.topic,
+            q: rawQuestion.q,
+            options: shuffledOptions,
+            a: newCorrectIndex,
+            hint: rawQuestion.hint
+        };
+        
+        let questionHtml = `<p class="question-text"><strong>[${currentItem.topic}]</strong><br>${currentItem.q}</p>`;
+        let optionsHtml = '<div class="options-container">';
+        currentItem.options.forEach((opt, idx) => {
+            optionsHtml += `<button class="option-btn" onclick="checkAnswer(this, ${idx})">${opt}</button>`;
+        });
+        optionsHtml += '</div>';
+        
+        quizArea.innerHTML = questionHtml + optionsHtml;
+    }
+
+    function checkAnswer(selectedBtn, selectedIdx) {
+        totalCount++;
+        const correctIdx = currentItem.a;
+        const optionButtons = document.querySelectorAll('.option-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const hintArea = document.getElementById('hint-area');
+        const hintText = document.getElementById('hint-text');
+
+        optionButtons.forEach(btn => btn.disabled = true);
+
+        if (selectedIdx === correctIdx) {
+            correctCount++;
+            selectedBtn.classList.add('correct');
+        } else {
+            selectedBtn.classList.add('incorrect');
+            optionButtons[correctIdx].classList.add('correct');
+        }
+
+        if (currentItem.hint) {
+            hintText.innerText = currentItem.hint;
+            hintArea.style.display = 'block';
+        }
+
+        updateStats();
+        nextBtn.style.display = 'block';
+    }
+
+    function updateStats() {
+        document.getElementById('score').innerText = correctCount;
+        document.getElementById('total').innerText = totalCount;
+        const percent = totalCount === 0 ? 0 : Math.round((correctCount / totalCount) * 100);
+        document.getElementById('percent').innerText = percent;
+    }
+
+    function showFinalScreen(totalInPool) {
+        const quizArea = document.getElementById('quiz-area');
+        const fillLine = document.getElementById('progress-line-fill');
+        fillLine.style.width = '100%';
+
+        let finalPercent = Math.round((correctCount / totalCount) * 100);
+        
+        let ratingText = "";
+        if (finalPercent >= 90) ratingText = "Рівень C1/C2. Блискуче! Ви ідеально володієте матеріалом цієї теми.";
+        else if (finalPercent >= 75) ratingText = "Рівень B2. Чудовий результат, ви впевнено готові до тесту.";
+        else if (finalPercent >= 50) ratingText = "Рівень B1. Нормально, але варто повторити підказки до помилок.";
+        else ratingText = "Рівень A2. Треба більше практики. Спробуйте пройти тему ще раз.";
+
+        quizArea.innerHTML = `
+            <div class="finish-screen">
+                <h2>Усі питання теми пройдені! 🎉</h2>
+                <p>Ви без повторень опрацювали всі <strong>${totalInPool}</strong> питань з обраного фільтру.</p>
+                
+                <div class="score-badge">
+                    <span class="score-number">${correctCount} / ${totalCount}</span>
+                    <span class="score-percent">(${finalPercent}%) правильних відповідей за сесію</span>
+                </div>
+                
+                <p class="evaluation-text">${ratingText}</p>
+                <button class="restart-btn" onclick="restartSession()">Пройти тему знову</button>
+            </div>
+        `;
+    }
+
+    function restartSession() {
+        correctCount = 0;
+        totalCount = 0;
+        updateStats();
+        rebuildQuestionPool();
+        loadQuestion();
+    }
+
+    // Запуск системи після повного завантаження сторінки
+    window.onload = function() {
+        rebuildQuestionPool();
+        loadQuestion();
+    };
+</script>
+</body>
+</html>
