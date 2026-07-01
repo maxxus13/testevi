@@ -586,6 +586,9 @@
 
         updateStats();
         nextBtn.style.display = 'block';
+		setTimeout(() => {
+            nextBtn.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100);
     }
 
     function updateStats() {
