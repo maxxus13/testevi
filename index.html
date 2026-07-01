@@ -2,59 +2,344 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EVI English Trainer - Тематичний режим</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 850px; margin: 30px auto; padding: 20px; color: #333; background-color: #f9f9f9; }
-        h1 { text-align: center; color: #0056b3; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 25px; }
+        /* Базові стилі та скидання під мобільні екрани */
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            max-width: 500px; /* Ідеальна ширина для мобільного інтерфейсу на десктопі */
+            margin: 0 auto; 
+            padding: 16px; 
+            color: #1c1c1e; 
+            background-color: #f2f2f7; /* Світло-сірий фон iOS */
+        }
+
+        h1 { 
+            text-align: center; 
+            color: #007aff; 
+            font-size: 24px;
+            margin: 10px 0 4px 0; 
+            font-weight: 700;
+        }
+
+        .subtitle { 
+            text-align: center; 
+            color: #8e8e93; 
+            font-size: 14px;
+            margin-bottom: 20px; 
+        }
         
         /* Панель навігації та фільтрів */
-        .filter-section { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; margin-bottom: 25px; }
-        .nav-row { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .filter-section { 
+            background: white; 
+            padding: 14px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+            margin-bottom: 16px; 
+        }
+
+        .nav-row { 
+            display: flex; 
+            flex-direction: column; /* Вертикальний стек для мобільних */
+            gap: 8px; 
+            margin-bottom: 12px; 
+            padding-bottom: 12px; 
+            border-bottom: 1px solid #e5e5ea; 
+        }
         
-        .part-btn { flex: 1; padding: 12px; font-size: 1.1em; cursor: pointer; background: #f0f0f0; border: 1px solid #ccc; border-radius: 8px; transition: all 0.2s; font-weight: bold; color: #555; }
-        .part-btn.active { background: #007bff; color: white; border-color: #007bff; }
+        .part-btn { 
+            width: 100%; 
+            padding: 12px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            background: #f2f2f7; 
+            border: 1px solid transparent; 
+            border-radius: 12px; 
+            transition: all 0.2s; 
+            font-weight: 600; 
+            color: #48484a; 
+            text-align: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .part-btn:active {
+            transform: scale(0.98);
+        }
+
+        .part-btn.active { 
+            background: #007aff; 
+            color: white; 
+        }
         
-        .topics-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-        .topic-btn { padding: 8px 14px; font-size: 0.9em; cursor: pointer; background: white; border: 1px solid #007bff; color: #007bff; border-radius: 20px; transition: all 0.2s; }
-        .topic-btn:hover { background: #f0f8ff; }
-        .topic-btn.active { background: #007bff; color: white; font-weight: bold; }
+        .topics-row { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+            justify-content: center; 
+        }
+
+        .topic-btn { 
+            padding: 8px 14px; 
+            font-size: 13px; 
+            cursor: pointer; 
+            background: white; 
+            border: 1px solid #007aff; 
+            color: #007aff; 
+            border-radius: 20px; 
+            transition: all 0.2s; 
+            font-weight: 500;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .topic-btn:active {
+            transform: scale(0.95);
+        }
+
+        .topic-btn.active { 
+            background: #007aff; 
+            color: white; 
+            font-weight: 600; 
+        }
         
-        /* Статистика та прогрес-бар */
-        .stats { background-color: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; display: flex; justify-content: space-around; }
+        /* Статистика */
+        .stats { 
+            background-color: white; 
+            padding: 12px; 
+            border-radius: 16px; 
+            margin-bottom: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+            display: flex; 
+            justify-content: space-around; 
+        }
+
         .stat-item { text-align: center; }
-        .stat-label { font-size: 0.85em; color: #777; }
-        .stat-value { font-size: 1.4em; font-weight: bold; color: #333; }
+        .stat-label { font-size: 11px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .stat-value { font-size: 18px; font-weight: 700; color: #1c1c1e; }
         
-        #progress-line-bg { background-color: #e0e0e0; height: 8px; border-radius: 4px; width: 100%; margin-bottom: 25px; overflow: hidden; }
-        #progress-line-fill { background-color: #28a745; height: 100%; width: 0%; transition: width 0.3s ease; }
+        /* Прогрес-бар */
+        #progress-line-bg { 
+            background-color: #e5e5ea; 
+            height: 6px; 
+            border-radius: 3px; 
+            width: 100%; 
+            margin-bottom: 16px; 
+            overflow: hidden; 
+        }
+
+        #progress-line-fill { 
+            background-color: #34c759; /* Зелений колір iOS */
+            height: 100%; 
+            width: 0%; 
+            transition: width 0.3s ease; 
+        }
         
         /* Контейнер тесту */
-        .quiz-container { background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; min-height: 200px; }
-        .question-text { font-size: 1.25em; margin-bottom: 25px; line-height: 1.6; color: #222; }
-        .options-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 25px; }
+        .quiz-container { 
+            background-color: white; 
+            padding: 20px; 
+            border-radius: 20px; 
+            box-shadow: 0 6px 18px rgba(0,0,0,0.04); 
+            min-height: 200px; 
+            margin-bottom: 20px;
+        }
+
+        .question-text { 
+            font-size: 18px; 
+            margin-top: 0;
+            margin-bottom: 20px; 
+            line-height: 1.5; 
+            color: #1c1c1e; 
+            font-weight: 600;
+        }
+
+        .question-topic-badge {
+            display: inline-block;
+            background-color: #e5f1ff;
+            color: #007aff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* Варіанти відповідей у вигляді карток */
+        .options-container { 
+            display: flex;
+            flex-direction: column;
+            gap: 10px; 
+            margin-bottom: 20px; 
+        }
         
-        .option-btn { padding: 14px 20px; font-size: 1.05em; cursor: pointer; background-color: #fff; border: 2px solid #ddd; border-radius: 8px; transition: all 0.15s; color: #444; text-align: left; }
-        .option-btn:hover:not(:disabled) { border-color: #007bff; background-color: #f0f8ff; }
-        .option-btn:disabled { cursor: not-allowed; }
+        .option-btn { 
+            width: 100%;
+            min-height: 52px; 
+            padding: 14px 16px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            background-color: #f2f2f7; 
+            border: 2px solid transparent; 
+            border-radius: 14px; 
+            transition: all 0.15s ease; 
+            color: #1c1c1e; 
+            text-align: left; 
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .option-btn:active:not(:disabled) { 
+            transform: scale(0.98);
+            background-color: #e5e5ea;
+        }
+
+        .option-btn:disabled { 
+            cursor: not-allowed; 
+        }
         
         /* Підсвічування відповідей */
-        .option-btn.correct { background-color: #28a745 !important; border-color: #28a745 !important; color: white !important; font-weight: bold; }
-        .option-btn.incorrect { background-color: #dc3545 !important; border-color: #dc3545 !important; color: white !important; font-weight: bold; }
+        .option-btn.correct { 
+            background-color: #e8f5e9 !important; 
+            border-color: #34c759 !important; 
+            color: #1e4620 !important; 
+            font-weight: 700; 
+        }
+
+        .option-btn.incorrect { 
+            background-color: #ffebee !important; 
+            border-color: #ff3b30 !important; 
+            color: #5a1a1a !important; 
+            font-weight: 700; 
+        }
         
-        #hint-area { background-color: #e2f3f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #007bff; display: none; }
-        #hint-text { color: #0056b3; }
+        //* Оновлений прокачаний блок аналізу */
+        #hint-area { 
+            background-color: #ffffff; 
+            padding: 16px; 
+            border-radius: 16px; 
+            margin-bottom: 20px; 
+            border: 1px solid #e5e5ea;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            display: none; 
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #007aff;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .hint-main-rule {
+            font-size: 16px;
+            line-height: 1.4;
+            color: #1c1c1e;
+            margin-bottom: 12px;
+        }
+
+        /* Картка для швидкого візуального запам'ятовування */
+        /* Картка для швидкого візуального запам'ятовування */
+        .hint-flashcard {
+            background-color: #f2f2f7;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #1c1c1e; /* Темний колір тексту для кращої читабельності */
+            border-left: 4px solid #007aff;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
         
-        #next-btn { display: none; width: 100%; padding: 14px; font-size: 1.15em; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 8px; font-weight: bold; }
-        #next-btn:hover { background-color: #218838; }
+        /* Стиль для жовтого маркера прийменника */
+        .hint-flashcard u {
+            text-decoration: none;
+            background-color: #ffe600; /* Яскраво-жовтий маркер */
+            color: #000000; /* Чорний текст всередині маркера */
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            display: inline-block;
+        }
         
-        .no-questions, .finish-screen { text-align: center; color: #333; padding: 40px 0; }
-        .finish-screen h2 { color: #28a745; font-size: 2em; margin-bottom: 10px; }
-        .score-badge { display: inline-block; background-color: #f0f8ff; border: 2px dashed #007bff; border-radius: 8px; padding: 15px 30px; margin: 20px 0; }
-        .score-number { font-size: 2em; font-weight: bold; color: #007bff; display: block; }
-        .evaluation-text { font-size: 1.1em; color: #555; max-width: 600px; margin: 0 auto 25px auto; line-height: 1.5; }
-        .restart-btn { padding: 12px 25px; font-size: 1.1em; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .restart-btn:hover { background-color: #0056b3; }
+        /* Головна кнопка "Далі" */
+        #next-btn { 
+            display: none; 
+            width: 100%; 
+            padding: 16px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            background-color: #007aff; 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            font-weight: 600; 
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #next-btn:active { 
+            background-color: #0056b3; 
+        }
+        
+        /* Екран завершення */
+        .no-questions, .finish-screen { text-align: center; color: #1c1c1e; padding: 30px 10px; }
+        .finish-screen h2 { color: #34c759; font-size: 22px; margin-bottom: 12px; font-weight: 700; }
+        
+        .score-badge { 
+            display: block; 
+            background-color: #f2f2f7; 
+            border: 1px solid #e5e5ea; 
+            border-radius: 16px; 
+            padding: 16px; 
+            margin: 20px 0; 
+        }
+
+        .score-number { font-size: 28px; font-weight: 800; color: #007aff; display: block; margin-bottom: 4px; }
+        .score-percent { font-size: 14px; color: #8e8e93; }
+        
+        .evaluation-text { font-size: 15px; color: #48484a; margin-bottom: 24px; line-height: 1.5; }
+        
+        .restart-btn { 
+            width: 100%;
+            padding: 16px; 
+            font-size: 16px; 
+            background-color: #007aff; 
+            color: white; 
+            border: none; 
+            border-radius: 14px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .restart-btn:active { background-color: #0056b3; }
+
+        /* Адаптація під планшети чи великі екрани */
+        @media (min-width: 480px) {
+            .nav-row { flex-direction: row; }
+            .part-btn { flex: 1; }
+        }
     </style>
 </head>
 <body>
@@ -64,24 +349,17 @@
 
 <div class="filter-section">
     <div class="nav-row">
-        <button class="part-btn active" id="part1-btn" onclick="switchPart(1)">Перша частина: Лексика (Task 3)</button>
-        <button class="part-btn" id="part2-btn" onclick="switchPart(2)">Друга частина: Граматика (Task 4)</button>
+        <button class="part-btn active" id="part1-btn" onclick="switchPart(1)">Лексика (Task 3)</button>
+        <button class="part-btn" id="part2-btn" onclick="switchPart(2)">Граматика (Task 4)</button>
     </div>
     
-    <div class="topics-row" id="topics-container">
-        <button class="topic-btn active" onclick="switchTopic('All')">Всі теми частини</button>
-        <button class="topic-btn" onclick="switchTopic('Collocations')">Collocations</button>
-        <button class="topic-btn" onclick="switchTopic('Phrasal Verbs')">Phrasal Verbs</button>
-        <button class="topic-btn" onclick="switchTopic('Idioms & Fixed Expressions')">Idioms & Fixed Expressions</button>
-        <button class="topic-btn" onclick="switchTopic('Words easily confused / Synonyms')">Words / Synonyms</button>
-        <button class="topic-btn" onclick="switchTopic('Dependent Prepositions')">Dependent Prepositions</button>
-    </div>
+    <div class="topics-row" id="topics-container"></div>
 </div>
 
 <div class="stats">
     <div class="stat-item"><div class="stat-label">Правильно</div><div class="stat-value" id="score">0</div></div>
-    <div class="stat-item"><div class="stat-label">Зараз пройдено</div><div class="stat-value" id="total">0</div></div>
-    <div class="stat-item"><div class="stat-label">Результативність</div><div class="stat-value"><span id="percent">0</span>%</div></div>
+    <div class="stat-item"><div class="stat-label">Пройдено</div><div class="stat-value" id="total">0</div></div>
+    <div class="stat-item"><div class="stat-label">Успішність</div><div class="stat-value"><span id="percent">0</span>%</div></div>
 </div>
 <div id="progress-line-bg"><div id="progress-line-fill"></div></div>
 
@@ -105,58 +383,86 @@
     let unvisitedQuestions = [];
 
     // Функція, яка запускається при зміні теми або частини для створення нового списку доступних питань
+    // Функція створення нового списку доступних питань
     function rebuildQuestionPool() {
-        // Фільтруємо головну базу db відповідно до обраних кнопками фільтрів
+        // 1. Фільтруємо базу за обраною частиною (1 або 2)
         let filtered = db.filter(item => item.part === selectedPart);
-        if (selectedPart === 1 && selectedTopic !== 'All') {
+        
+        // 2. Якщо обрано конкретну тему (не "All") — фільтруємо за темою
+        if (selectedTopic !== 'All') {
             filtered = filtered.filter(item => item.topic === selectedTopic);
         }
-        // Записуємо відфільтровані питання у пул невідвіданих
+        
+        // 3. Рандомимо питання
+        filtered.sort(() => Math.random() - 0.5);
+        
+        // 4. Якщо це режим "Всі теми", обрізаємо сесію до 25 випадкових питань
+        if (selectedTopic === 'All') {
+            filtered = filtered.slice(0, 25);
+        }
+        
         unvisitedQuestions = [...filtered];
     }
 
+    
+
+    // Нові актуальні списки тем під формат ЄВІ
+    const themes = {
+        1: [
+            { id: 'All', label: 'Всі теми' },
+            { id: 'Collocations', label: 'Collocations' },
+            { id: 'Phrasal Verbs', label: 'Phrasal Verbs' },
+            { id: 'Idioms & Fixed Expressions', label: 'Idioms' },
+            { id: 'Words easily confused / Synonyms', label: 'Synonyms' },
+            { id: 'Dependent Prepositions', label: 'Prepositions' }
+        ],
+        2: [
+            { id: 'All', label: 'Всі теми' },
+            { id: 'Verb Tenses & Agreement', label: 'Tenses & Agreement' },
+            { id: 'Gerund, Infinitive & Participles', label: 'Verb Forms' },
+            { id: 'Pronouns & Determiners', label: 'Pronouns' },
+            { id: 'Articles & Numerals', label: 'Articles & Nouns' },
+            { id: 'Adjectives & Comparison', label: 'Modifiers' }
+        ]
+    };
+
+    // Функція, яка сама малює потрібні кнопки тем на iPhone
+    function renderTopicButtons() {
+        const container = document.getElementById('topics-container');
+        if (!container) return;
+        
+        container.innerHTML = ''; // Очищуємо старі кнопки
+        
+        themes[selectedPart].forEach(topic => {
+            const isActive = topic.id === selectedTopic ? 'active' : '';
+            const btn = document.createElement('button');
+            btn.className = `topic-btn ${isActive}`;
+            btn.innerText = topic.label;
+            btn.onclick = () => switchTopic(topic.id);
+            container.appendChild(btn);
+        });
+    }
+
+    // Розумне перемикання між Лексикою (Part 1) та Граматикою (Part 2)
     function switchPart(partNum) {
         selectedPart = partNum;
-        selectedTopic = 'All'; 
+        selectedTopic = 'All'; // При зміні вкладки завжди скидаємо на "Всі теми"
         
+        // Підсвічуємо активну вкладку вгорі
         document.getElementById('part1-btn').classList.toggle('active', partNum === 1);
         document.getElementById('part2-btn').classList.toggle('active', partNum === 2);
         
-        const topicsRow = document.getElementById('topics-container');
-        if (partNum === 2) {
-            topicsRow.style.style.display = 'none';
-            topicsRow.style.display = 'none';
-        } else {
-            topicsRow.style.display = 'flex';
-            resetTopicButtons();
-        }
-        
-        rebuildQuestionPool();
-        loadQuestion();
+        renderTopicButtons();  // Перемальовуємо кнопки під обрану частину
+        rebuildQuestionPool(); // Збираємо новий пул питань
+        loadQuestion();        // Завантажуємо перше питання
     }
 
+    // Перемикання конкретної теми всередині вкладки
     function switchTopic(topicName) {
         selectedTopic = topicName;
-        
-        const buttons = document.querySelectorAll('.topic-btn');
-        buttons.forEach(btn => {
-            if(btn.innerText === topicName || (topicName === 'All' && btn.innerText.includes('Всі'))) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-        
+        renderTopicButtons();
         rebuildQuestionPool();
         loadQuestion();
-    }
-
-    function resetTopicButtons() {
-        const buttons = document.querySelectorAll('.topic-btn');
-        buttons.forEach((btn, idx) => {
-            if(idx === 0) btn.classList.add('active');
-            else btn.classList.remove('active');
-        });
     }
 
     function loadQuestion() {
@@ -215,7 +521,10 @@
             hint: rawQuestion.hint
         };
         
-        let questionHtml = `<p class="question-text"><strong>[${currentItem.topic}]</strong><br>${currentItem.q}</p>`;
+        let questionHtml = `
+            <div class="question-topic-badge">${currentItem.topic}</div>
+            <p class="question-text">${currentItem.q}</p>
+        `;
         let optionsHtml = '<div class="options-container">';
         currentItem.options.forEach((opt, idx) => {
             optionsHtml += `<button class="option-btn" onclick="checkAnswer(this, ${idx})">${opt}</button>`;
@@ -231,7 +540,6 @@
         const optionButtons = document.querySelectorAll('.option-btn');
         const nextBtn = document.getElementById('next-btn');
         const hintArea = document.getElementById('hint-area');
-        const hintText = document.getElementById('hint-text');
 
         optionButtons.forEach(btn => btn.disabled = true);
 
@@ -243,8 +551,35 @@
             optionButtons[correctIdx].classList.add('correct');
         }
 
+        // Супер-візуалізація підказки з жирним шрифтом та маркером
         if (currentItem.hint) {
-            hintText.innerText = currentItem.hint;
+            let hintContent = "";
+            
+            if (currentItem.hint.includes('—') || currentItem.hint.includes('-')) {
+                const parts = currentItem.hint.split(/[—-]/);
+                let rule = parts[0].trim();
+                const translation = parts.slice(1).join('—').trim();
+                
+                // 1. Спочатку підсвічуємо залежний прийменник жовтим маркером всередині правила
+                rule = rule.replace(/\b(at|on|in|for|of|to|with|from|about|against)\b/gi, '<u>$1</u>');
+                
+                // 2. Робимо всю англійську конструкцію жирною
+                const boldRule = `<strong>${rule}</strong>`;
+
+                hintContent = `
+                    <div class="hint-header">💡 Швидке запам'ятовування</div>
+                    <div class="hint-main-rule">
+                        <div class="hint-flashcard">${boldRule} ➔ ${translation}</div>
+                    </div>
+                `;
+            } else {
+                hintContent = `
+                    <div class="hint-header">💡 Аналіз правила</div>
+                    <div class="hint-main-rule">${currentItem.hint}</div>
+                `;
+            }
+            
+            hintArea.innerHTML = hintContent;
             hintArea.style.display = 'block';
         }
 
@@ -292,12 +627,12 @@
         correctCount = 0;
         totalCount = 0;
         updateStats();
-        rebuildQuestionPool();
+        rebuildQuestionPool(); // Створить новий випадковий пул (в т.ч. нові 25 питань для "All")
         loadQuestion();
     }
 
-    // Запуск системи після повного завантаження сторінки
     window.onload = function() {
+        renderTopicButtons(); // Обов'язково викликаємо тут!
         rebuildQuestionPool();
         loadQuestion();
     };
